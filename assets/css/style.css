@@ -1,6 +1,7 @@
 body{
   background: url("../images/football.jpg");
   background-size: cover;
+  
 
 }
 
@@ -26,16 +27,20 @@ body{
 }
 
 
-
+#buttons{
+  width: 80%;
+  margin-left: 10%;
+  margin-top: 50px;
+}
 
 button {
-  background-color: blue;
-  height: 80px;
-  width:  160px;
-  overflow: auto;
+  background-color:#ccc;
+  width:  25%;
   padding: 10px;
-  margin: 35px;
+  margin: 0px 30px;
   font-size: 20px;
+  border-radius: 12px;
+  overflow: hidden;
 }
 
 .pressed {
