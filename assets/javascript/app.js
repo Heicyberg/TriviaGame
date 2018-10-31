@@ -18,6 +18,13 @@ $(document).ready(function() {
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //Data Section
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//creat global variable to hold the socres
+var Wscore = 0;
+//creat global variable to count down the questions
+var nq = 7;
+//qTimeout/rTimeout are variables for clear set time out function
+var qTimeout;
+var rTimeout;
 //creat an array to store a list of players, positions, and list
 var playerList = ["Tom Brandy","Antonio Brown","Carson Wentz","Julio Jones","Le'Veno Bell","Todd Gurley","Aaron Donald","Drew Brees",
 "Von Miller","Aaron Rodgers","Russell Wilson","Luke Kuechly","DeAndre Hopkings","Calais Campbell","Rob Gronkowski",
@@ -55,10 +62,8 @@ $.ajax({
 //creat a function that change the background image
 function changeBackground(){
   $("body").css("background-image","url('assets/images/Qbackground.jpg'")
-  console.log("background should change")
+  console.log("background for Qestions")
 }
-
-
 
 //creat function used to generate random array of length without repetting, also including a;
 function shuffle(array) {
@@ -75,7 +80,6 @@ while (i--) {
   }
      return array;
 }
-
 
 //creat a function that return N elements of the random array, including Key element with index, N is the lenth of Array
 function randomArray(array,key,N){
@@ -95,6 +99,75 @@ function randomArray(array,key,N){
       }
 
       return newRandomArray;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//Stop Watch
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  Variable that will hold our setInterval that runs the stopwatch
+var intervalId;
+// prevents the clock from being sped up unnecessarily
+var clockRunning = false;
+//  Our stopwatch object.
+var stopwatch = {
+
+  time: 0,
+
+  reset: function() {
+
+    stopwatch.time = 0;
+
+    $("#timer").text(" You have 00:07 to answer ");
+    console.log("timer should be reset")
+
+  },
+
+  start: function() {
+
+    //  TODO: Use setInterval to start the count here and set the clock to running.
+    
+    if (!clockRunning) {
+      intervalId = setInterval(stopwatch.count, 1000);
+      clockRunning = true;
+      console.log("Started")
+      console.log(intervalId)
+    }
+
+  },
+
+  stop: function() {
+      clearInterval(intervalId);
+      console.log("stopped")
+      console.log(intervalId)
+
+    //  TODO: Use clearInterval to stop the count here and set the clock to not be running.
+
+  },
+
+ 
+  count: function() {
+    //  TODO: increment time by 1
+    stopwatch.time++;
+    
+    var timeRemain = stopwatch.timeCountdown(stopwatch.time);
+    $("#timer").text(timeRemain);
+
+  },
+
+  
+  timeCountdown: function(t) {
+    //  Takes the current time in seconds and convert it to minutes and seconds (mm:ss).
+    var minutes = '00';
+    var seconds = 7-t;
+    if (seconds<0){
+      stopwatch.stop();
+      seconds = "00";
+    }
+     seconds = "0" + seconds;
+  
+    return minutes + ":" + seconds;
+  }
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -159,9 +232,7 @@ function answerSection(){
   console.log(randPalyers);
   console.log("Before randomListIndex the Key is")
   console.log(key);
-// var answerIndex = randomListIndex(key,randPalyers);
-// console.log("return the index of key of the random array")
-// console.log(answerIndex);
+
   var answerRandomArray = randomArray(randPalyers,key,4);
   console.log("return N elements of the random array, including Key element with index")
   console.log(answerRandomArray)
@@ -198,169 +269,160 @@ for (i=0;i<4;i++){
 
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//Select a answer
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//1.Make a select effect, using toggle method, registered on buttons
-// ++++++++++++++++++++++++ Not Working +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-function clickonButn(){
-  $(this).toggleClass(".pressed");
-  console.log("trigered");
-}
-
-//2.Get the value of selected object
-
-function buttonValue(){
-  var val = $(this).attr("data-answer")
-  console.log("value worked "+val)
-  console.log(this)
-  return val
-}
-
-
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//Set Time Out Function
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++= 
-//Creat a timeout function to negative page if time out
-//Creat a timeout function on the result page to question page
-var qTimeout;
-var rTimeout;
-function changePage(R){
-  if ( R==1 ){
-    startButtn();
-    clearTimeout(rTimeout);
-  }
-  if ( R==0 ){
-    resultPage(0);
-    clearTimeout(qTimeout);
-  }
-}
-
-//Creat a function that when click on button start 
-
-
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//Creat a function put all the elements together for question page, called startButtn().  
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//called when 
+//1.click start button
+//2.result page time out
 function startButtn(){
+  $("#timer").empty();
   changeBackground();
     quesSelector();
     randomGif();
     answerSection();
     $("h1").remove();
     $("h3").remove();
-    qTimeout = setTimeout(changePage(0),5000);
+   
+    nq=nq-1;
+
+    console.log("question page: question # "+nq);
+
+    stopwatch.reset();
+    stopwatch.start();
+    stopwatch.count();
+
+   //Question Page stay 7 seconds, after timeout, change to result page
+   var timeoutQ = function() {
+    changePage(1);
+    }
+
+   qTimeout = setTimeout(timeoutQ, 7000);
+   //clear time out function set on the result page;
+   clearTimeout(rTimeout);
+
 }
-
- 
-
- //Creat a function to show a result page 
- function resultPage(R){
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//Creat a function to show a result page 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+function resultPage(R){
 
   $(".question, .gif").empty();
   $("#buttons").empty();
   $("#timer").empty();
-  $("body").css("background-image","url('assets/images/Rbackground')")
+  $("body").css("background-image","url('assets/images/Rbackground.jpg')")
   var resultGif = $("<img>");
+  resultGif.css("width","30%")
+  resultGif.css("margin-left","35%")
+  resultGif.css("margin-top","30px")
   var resultText = $("<p>");
+  resultText.css("background-color","#ccc")
+  
   //the following if statements changes gif for different results
    if (R==1){ 
-    resultGif.attr("src","https://gfycat.com/gifs/detail/accomplishedwillinggrouper");
+    resultGif.attr("src","assets/images/td.gif");
     resultText.text("SCORED")
+    resultText.css("color","green")
    }
 
    if (R==0){ 
-    resultGif.attr("src","https://giphy.com/gifs/life-minute-tough-x6idyrAkU722Q");
+    resultGif.attr("src","assets/images/dropball.gif");
     resultText.text("YOU DROPPED BALL")
+    resultText.css("color","red") 
    }
 
    $(".question").append(resultText);
+   
    $(".gif").append(resultGif);
 
-   qTimeout = setTimeout(changePage(1),2000);
+   //set a timeout function so, the result page stay 3 second the, change to question page
+   var timeoutR = function() {
+    changePage(0);
+    }
 
+   rTimeout = setTimeout(timeoutR, 3000);
+   //clear time out function set on the question page;
+   clearTimeout(qTimeout);
+  
  }
-//creat a function to tell if the answert is creat 
-function trueOrnot(){
-  var value = this.attr("data-answer");
-  
-}
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// A Function to change pages, link the question page with result page
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++= 
+//Creat a timeout function to negative page if time out
+//Creat a timeout function on the result page to question page
 
+function changePage(R){
+  if ( R==0 ){
+    startButtn();
+  }
+  if ( R==1 ){
+    resultPage(0);
+  }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//Stop Watch
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//  Variable that will hold our setInterval that runs the stopwatch
-var intervalId;
-// prevents the clock from being sped up unnecessarily
-var clockRunning = false;
-
-
-//  Our stopwatch object.
-var stopwatch = {
-
-  time: 0,
-
-  reset: function() {
-
-    stopwatch.time = 0;
-
-    $("#timer").text('00:05');
-
-  },
-
-  start: function() {
-
-    //  TODO: Use setInterval to start the count here and set the clock to running.
-    
-    if (!clockRunning) {
-      intervalId = setInterval(stopwatch.count, 1000);
-      clockRunning = true;
-      console.log("Started")
-      console.log(intervalId)
-    }
-
-  },
-
-  stop: function() {
-      clearInterval(intervalId);
-      console.log("stopped")
-      console.log(intervalId)
-
-    //  TODO: Use clearInterval to stop the count here and set the clock to not be running.
-
-  },
-
- 
-  count: function() {
-    //  TODO: increment time by 1
-    stopwatch.time++;
-    
-    var timeRemain = stopwatch.timeCountdown(stopwatch.time);
-    $("#timer").text(timeRemain);
-
-  },
-
-  
-  timeCountdown: function(t) {
-    //  Takes the current time in seconds and convert it to minutes and seconds (mm:ss).
-    var minutes = '00';
-    var seconds = 7-t;
-    if (seconds<0){
-      stopwatch.stop();
-      seconds = "00";
-    }
-     seconds = "0" + seconds;
-  
-    return minutes + ":" + seconds;
+  if (R==2){
+    resultPage(1);
   }
 
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//Select a answer
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//button effect//
+function clickonButn(){
+  $(this).toggleClass("pressed");
+  console.log("Button Pressed");
+  stopwatch.stop();
+}
+//tell if the user get correct answer
+function trueOrnot(){
+  var trueAnswer;
+  var value = $(this).attr("data-answer");
+  console.log("selected answer: "+ value);
+  
+  if(choice == 0 ){
+    trueAnswer = playerList[key];
+   }
+   if(choice == 1 ){
+    trueAnswer = teamList[key];
+   }
+   if(choice == 2){
+    trueAnswer = positionList[key];
+   }
+   
+  //if answer is correct then score +=1, and go to the result page
+   if(value==trueAnswer){
+     Wscore += 1;
+     console.log("YES")
+     changePage(2);
+   }else{
+     console.log("NO")
+     changePage(1);
+   }
+
+   stopwatch.stop();
+
+ }
+
+
+
+
+ 
+
+ 
+
+
+
+
 
 $("#start").click(startButtn);
-$("#start").click(stopwatch.start)
-$("button").click(clickonButn);
-$(".answerButton").click(buttonValue);
+$("#buttons").on("click", ".answerButton", clickonButn);
+$("#buttons").on("click", ".answerButton", trueOrnot);
+
+if (nq<0){
+  clearTimeout(qTimeout);
+  clearTimeout(rTimeout);
+}
 
 });

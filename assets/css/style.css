@@ -46,3 +46,11 @@ button {
 .pressed {
   background-color: red;
 }
+
+#timer{
+  width: 33%;
+  padding: 20px;
+  color: red;
+  font-size: x-large;
+  margin-left: 33%;
+}
