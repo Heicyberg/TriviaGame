@@ -21,7 +21,7 @@ $(document).ready(function() {
 //creat global variable to hold the socres
 var Wscore = 0;
 //creat global variable to count down the questions
-var nq = 7;
+var nq = 5;
 //qTimeout/rTimeout are variables for clear set time out function
 var qTimeout;
 var rTimeout;
@@ -116,9 +116,7 @@ var stopwatch = {
   reset: function() {
 
     stopwatch.time = 0;
-
-    $("#timer").text(" You have 00:07 to answer ");
-    console.log("timer should be reset")
+    $("#timer").text("You have 00:05 to answer");
 
   },
 
@@ -129,7 +127,7 @@ var stopwatch = {
     if (!clockRunning) {
       intervalId = setInterval(stopwatch.count, 1000);
       clockRunning = true;
-      console.log("Started")
+      console.log("Started stopwatch")
       console.log(intervalId)
     }
 
@@ -137,7 +135,7 @@ var stopwatch = {
 
   stop: function() {
       clearInterval(intervalId);
-      console.log("stopped")
+      console.log("Stopped stopwatch")
       console.log(intervalId)
 
     //  TODO: Use clearInterval to stop the count here and set the clock to not be running.
@@ -148,9 +146,8 @@ var stopwatch = {
   count: function() {
     //  TODO: increment time by 1
     stopwatch.time++;
-    
     var timeRemain = stopwatch.timeCountdown(stopwatch.time);
-    $("#timer").text(timeRemain);
+    $("#timer").text("You have " +timeRemain+" to answer");
 
   },
 
@@ -158,12 +155,12 @@ var stopwatch = {
   timeCountdown: function(t) {
     //  Takes the current time in seconds and convert it to minutes and seconds (mm:ss).
     var minutes = '00';
-    var seconds = 7-t;
+    var seconds = 6-t;
     if (seconds<0){
       stopwatch.stop();
-      seconds = "00";
+      seconds = "0";
     }
-     seconds = "0" + seconds;
+      seconds = "0" + seconds;
   
     return minutes + ":" + seconds;
   }
@@ -258,6 +255,8 @@ for (i=0;i<4;i++){
   }
 
   var answerButn = $("<button>");
+  answerButn.css("magin","10px");
+  answerButn.css("text-overflow","ellipsis");
 
   answerButn.text(answerText);
   answerButn.attr("data-answer",answerText);
@@ -284,12 +283,17 @@ function startButtn(){
     $("h1").remove();
     $("h3").remove();
    
-    nq=nq-1;
-
     console.log("question page: question # "+nq);
 
-    stopwatch.reset();
+    $("#timer").css("margin","auto");
+    $("#timer").css("margin-top","30px");
+    $("#timer").css("font-size","35px")
+    $("#timer").css("text-align","center")
+
+
+    clockRunning = false;
     stopwatch.start();
+    stopwatch.reset();
     stopwatch.count();
 
    //Question Page stay 7 seconds, after timeout, change to result page
@@ -297,7 +301,7 @@ function startButtn(){
     changePage(1);
     }
 
-   qTimeout = setTimeout(timeoutQ, 7000);
+   qTimeout = setTimeout(timeoutQ, 5000);
    //clear time out function set on the result page;
    clearTimeout(rTimeout);
 
@@ -336,15 +340,59 @@ function resultPage(R){
    $(".gif").append(resultGif);
 
    //set a timeout function so, the result page stay 3 second the, change to question page
-   var timeoutR = function() {
-    changePage(0);
-    }
 
-   rTimeout = setTimeout(timeoutR, 3000);
-   //clear time out function set on the question page;
-   clearTimeout(qTimeout);
-  
+   nq=nq-1;
+
+   stopwatch.stop();
+
+  if (nq>0){
+    var timeoutR = function() {
+      changePage(0);
+      }
+    //clear time out function set on the question page;
+    clearTimeout(qTimeout);
+    rTimeout = setTimeout(timeoutR, 2000);
+   
+  }else{
+    finalPage();
+  }
+
+ 
  }
+
+ //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//Creat a function to show a final page after all the questions answered 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+function finalPage(){
+  $(".question, .gif").empty();
+  $("#buttons").empty();
+  $("#timer").empty();
+  $("body").css("background-image","url('assets/images/Fbackground.jpg')")
+  
+  
+  //the following if statements changes gif for different results
+   var finalText = $("<p>").text("Your total score is : "+ Wscore+" out of 5");
+
+   $(".question").append(finalText);
+   $(".question").css("margin-top","20%")
+
+   var restartButn =$("<a>").text("START OVER");
+   restartButn.addClass("reButn");
+   restartButn.addClass("button");
+   restartButn.attr("href","https://heicybuger.github.io/TriviaGame/index.html");
+   
+   $(".gif").append(restartButn);
+   $(".gif").css("width","33%");
+   $(".gif").css("margin-left","33.5%");
+   $(".gif").css("margin-top","15%")
+   $(".gif").css("text-align","center");
+   $(".gif").css("padding","30px");
+
+   clearTimeout(qTimeout);
+   clearTimeout(rTimeout);
+   
+}
+
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // A Function to change pages, link the question page with result page
@@ -417,8 +465,10 @@ function trueOrnot(){
 
 
 $("#start").click(startButtn);
+$("#start").click(stopwatch.start);
 $("#buttons").on("click", ".answerButton", clickonButn);
 $("#buttons").on("click", ".answerButton", trueOrnot);
+//$(".gif").on("click",".reButn",window.location.reload(true));
 
 if (nq<0){
   clearTimeout(qTimeout);

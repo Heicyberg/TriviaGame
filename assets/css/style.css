@@ -54,3 +54,11 @@ button {
   font-size: x-large;
   margin-left: 33%;
 }
+
+a.buttons {
+  -webkit-appearance: button;
+  -moz-appearance: button;
+  appearance: button;
+  text-decoration:navajowhite;
+  color: initial;
+}
